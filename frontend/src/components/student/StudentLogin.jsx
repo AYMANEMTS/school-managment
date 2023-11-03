@@ -23,10 +23,9 @@ export default function StudentLogin() {
 
     // 2. Define a submit handler.
     const onSubmit = async values => {
-        await axiosClient.get('/sanctum/csrf-cookie').then(async ()=>{
-            const data = await axiosClient.post('/login',values)
-            console.log(data)
-        })
+        await axiosClient.get('/sanctum/csrf-cookie')
+        const data = await axiosClient.post('/login',values)
+        console.log(data)
     };
 
     return (
