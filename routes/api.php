@@ -17,3 +17,6 @@ use Illuminate\Support\Facades\Route;
 Route::middleware(['auth:sanctum'])->get('/user', function (Request $request) {
     return $request->user();
 });
+
+Route::post('custtom_login',[\App\Http\Controllers\CusttomnLoginController::class,'login']);
+require __DIR__.'/auth.php';
