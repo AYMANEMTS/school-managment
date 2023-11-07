@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Validator;
@@ -17,7 +18,6 @@ class CusttomnLoginController extends Controller
             return response()->json([
                 'success' => false,
                 'errors' => $validator->errors(),
-
             ]);
         }
         if(Auth::attempt(['email'=>$request->email,'password'=>$request->password])){
@@ -25,10 +25,19 @@ class CusttomnLoginController extends Controller
             $token = $user->createToken('token')->plainTextToken;
             return response()->json([
                 'success' => true,
-                'data' => $user,
                 'token' => $token,
-
             ]);
         }
+        return response()->json(['error'=>'email or password is incorrect '],403);
     }
+    public function logout(Request $request)
+    {
+        $request->user()->currentAccessToken()->delete();
+
+        return response()->json([
+            'success' => true,
+            'message' => 'User logged out successfully.',
+        ]);
+    }
+
 }

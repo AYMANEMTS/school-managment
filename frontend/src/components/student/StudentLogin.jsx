@@ -5,6 +5,11 @@ import {Form, FormControl, FormField, FormItem, FormLabel, FormMessage} from "..
 import {Button} from "../ui/button.jsx";
 import {Input} from "../ui/input.jsx";
 import {axiosClient} from "../../api/axios.js";
+import {Loader} from "lucide-react";
+import {useNavigate} from "react-router-dom";
+import Studentapi from "../../services/Studentapi.jsx";
+import {useUserContext} from "../../context/UserContext.jsx";
+import {STUDENT_DASHBOARD_ROUTE} from "../../router/index.jsx";
 
 
 const formSchema = z.object({
@@ -12,20 +17,30 @@ const formSchema = z.object({
     password: z.string().min(8).max(50),
 })
 export default function StudentLogin() {
-    // 1. Define your form.
+    const navigate = useNavigate()
     const form = useForm({
         resolver: zodResolver(formSchema),
         defaultValues: {
             email: "oujdimraymane@gmail.com",
-            password:"124578962"
+            password:"1234567890"
         },
     })
+    const {isSubmitting} = form.formState
+    const {setAuthenticated,login} = useUserContext()
+    const onSubmit =  values => {
+             login(values.email,values.password).then((res) => {
+                if(res.data.success === true || res.data.token){
+                    localStorage.setItem('token',res.data.token)
+                    setAuthenticated(true)
+                    navigate(STUDENT_DASHBOARD_ROUTE)
+                }
+            })
+            .catch(({response}) => {
+                form.setError('email', {
+                    message: response.data.error
+                })
+            })
 
-    // 2. Define a submit handler.
-    const onSubmit = async values => {
-        await axiosClient.get('/sanctum/csrf-cookie')
-        const data = await axiosClient.post('/api/custtom_login',values)
-        console.log(data)
     };
 
     return (
@@ -59,7 +74,9 @@ export default function StudentLogin() {
                             </FormItem>
                         )}
                     />
-                    <Button type="submit">Submit</Button>
+                    <Button disabled={isSubmitting} type="submit">
+                        {isSubmitting && <Loader className={"my-2 mx-2 animate-spin"} />}{'  '}  Login
+                    </Button>
                 </form>
             </Form>
         </>
